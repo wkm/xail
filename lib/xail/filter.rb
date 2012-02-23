@@ -3,7 +3,18 @@ require 'term/ansicolor'
 
 module Xail
 
+  class UnknownFilter < Exception
+    def initialize(filter)
+      super("Unknown filter #{filter}. Known: #{FilterRegistry.filters.sort}")
+    end
+  end
+
   class FilterRegistry
+    def self.filters
+      @@filters ||= FilterRegistry.find_filters
+    end
+
+
     # naively assume all filters are defined in this file, or at least loaded
     # before this executes
     def self.find_filters
@@ -21,15 +32,21 @@ module Xail
     end
 
     def self.get_filter(name)
-      @@filters ||= FilterRegistry.find_filters
+      @@filters ||= FilterRegistry.filters
 
-      def find_filter(name)
-
+      if @@filters.has_key? name
+        return @@filters[name]
       end
 
       # if we couldn't find the filter, rebuild the list and try
       # again
       @@filters = FilterRegistry.find_filters
+
+      if @@filters.has_key? name
+        return @@filters[name]
+      else
+        raise UnknownFilter.new(name)
+      end
     end
   end
 

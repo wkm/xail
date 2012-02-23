@@ -1,19 +1,32 @@
 # xail - tail for winners
 
-xail is basically `tail` with a few addons to make it more useful for log
-viewing and the like. It's super lightweight.
+xail is a super lightweight Ruby DSL for building simple stream/log analysis
+tools.
+
+A simple log viewer: `logview.xail.rb`:
 
 
-## Categorizing
+    #!/bin/env xail
+    group('fatal') {
+        match 'fatal'
+        bell
+    }
 
-The main point of xail is to increase visibility of errors, through directly
-highlighting, but also isolating error lines. The default configuration:
+    group('error') {
+        match 'error', 'exception'
+        red
+        bold
+    }
 
-* `fatal` -- fatal conditions (bold red)
-* `error`, `exception` -- error conditions (red)
-* `warning`, `warn` -- warning conditions (yellow)
+    group('warning') {
+        match 'warn'
+        yello
+    }
 
-## Statistics
+You can then run it directly:
 
-By default xail will give you the log velocity for the last second, five
-seconds, and minute.
+    $ ./logview.xail.rb
+
+And it will accept input on stdin or a filename on the command line.
+
+
