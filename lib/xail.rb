@@ -26,11 +26,12 @@ error visibility in logs
       stream = File.open(stream)
     end
 
-    chain = FilterCascade.new
+    chain = FilterComposer.new
     chain << Blue.new
+    chain << OnRed.new
 
     stream.each() do |line|
-      puts chain.stream(line)
+      printf chain.streamLine(line)
     end
   end
 

@@ -1,3 +1,6 @@
+
+require 'term/ansicolor'
+
 module Xail
 
   class FilterRegistry
@@ -22,8 +25,8 @@ module Xail
 
 
   class AbstractFilter
-    def self.filterName
-      self.class.name.gsub(/filter/i, '')
+    def filterName
+      self.class.name.split('::').last.gsub(/filter/i, '')
     end
 
     def streamLine(line)
@@ -37,7 +40,10 @@ module Xail
   #
 
   class AbstractCompoundFilter < AbstractFilter
-    @filters = []
+    def initialize
+      @filters = []
+    end
+
     def <<(filter)
       @filters << filter
     end
@@ -58,11 +64,6 @@ module Xail
 
   # a composition streams the next filter on success
   class FilterComposer < AbstractCompoundFilter
-    @filters = []
-
-    def <<(filter)
-      @filters << filter
-    end
 
     def streamLine(input)
       @filters.inject(input) do |line,filter|
@@ -146,9 +147,12 @@ module Xail
   end
 
   class AbstractColorFilter < AbstractFilter
-    @colors = Term::ANSIColor
+    def initialize
+      @colors = Term::ANSIColor
+    end
+
     def streamLine(line)
-      return @colors.send(self.class.name.gsub(/On/,"on_").toLower, line)
+      return @colors.send(filterName.gsub(/On/,"on_").downcase, line)
     end
   end
 
