@@ -89,6 +89,8 @@ module Xail
           return line
         end
       end
+
+      nil
     end
   end
 
@@ -129,6 +131,8 @@ module Xail
           return line
         end
       end
+
+      nil
     end
   end
 
@@ -153,10 +157,12 @@ module Xail
 
     def streamLine(line)
       @keys.each do |key|
-        if line.include? key
+        if line.include?(key)
           return line
         end
       end
+
+      nil
     end
   end
 
@@ -166,7 +172,12 @@ module Xail
     end
 
     def streamLine(line)
-      line.gsub(regexp)
+      # why fold when you can iterate
+      final = line
+      @regexp.each_pair do |patt,val|
+        final.gsub!(patt,val)
+      end
+      final
     end
   end
 
@@ -193,17 +204,20 @@ module Xail
   #
 
   class SampleFilter < AbstractFilter
-    @count = 0
-    @rate
-
     def initialize(params)
       @rate = params.to_i
+      @count = 0
     end
 
     def streamLine(line)
-      if @count % @rate == 0
+      res = if @count % @rate == 0
         line
+      else
+        ""
       end
+
+      @count += 1
+      res
     end
   end
 

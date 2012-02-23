@@ -20,14 +20,18 @@ A Ruby utility for performing basic stream processing, directly focused on incre
     begin
       extend Xail::DSL
 
-      filter = eval(configuration)
+      eval(configuration)
+      filter = filter_in_scope
     end
 
-    pp filter
+    filter << PassThroughFilter.new
 
     stream = $stdin
     stream.each() do |line|
-      printf filter.streamLine(line)
+      streamed = filter.streamLine(line)
+      if streamed and streamed.size > 0
+        printf streamed
+      end
     end
   end
 
