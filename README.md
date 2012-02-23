@@ -1,28 +1,26 @@
 # xail - tail for winners
 
-[not ready for public consumption]
-
 xail is a super lightweight Ruby DSL for building simple stream/log analysis
 tools.
 
 A simple log viewer: `logview.xail.rb`:
 
 
-    #!/bin/env xail
+    #!/usr/bin/env xail
     group('fatal') {
-        match 'fatal'
+        contains 'fatal'
         bell
     }
 
     group('error') {
-        match 'error', 'exception'
+        contains 'error', 'exception'
         red
         bold
     }
 
     group('warning') {
-        match 'warn'
-        yello
+        contains 'warn'
+        yellow
     }
 
 You can then run it directly:

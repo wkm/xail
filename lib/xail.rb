@@ -22,9 +22,12 @@ A Ruby utility for performing basic stream processing, directly focused on incre
 
       eval(configuration)
       filter = filter_in_scope
+
+      if !has_final
+        filter << PassThroughFilter.new
+      end
     end
 
-    filter << PassThroughFilter.new
 
     stream = $stdin
     stream.each() do |line|

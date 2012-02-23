@@ -27,7 +27,16 @@ module Xail
       }
     end
 
+    def has_final
+      @has_final
+    end
+
     def rest(&filters)
+      if @has_final
+        raise "rest may only be specified once"
+      end
+
+      @has_final = true
       filter_scope(FilterComposition.new) {
         filters.yield
       }
@@ -39,7 +48,7 @@ module Xail
     end
 
     def method_missing(name, *args, &block)
-      filterClass = FilterRegistry::get_filter(name)
+      filterClass = FilterRegistry::get_filter(name.downcase)
       filter = filterClass.new(*args)
       filter_in_scope << filter
 

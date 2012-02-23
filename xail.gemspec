@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.email       = ["wiktor@tumblr.com"]
   s.homepage    = ""
   s.summary     = %q{tail for winners}
-  s.description = %q{TODO write this}
+  s.description = %q{A lightweight Ruby DSL for building text-stream filters}
 
   s.rubyforge_project = "xail"
 
