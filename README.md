@@ -1,5 +1,7 @@
 # xail - tail for winners
 
+[not ready for public consumption]
+
 xail is a super lightweight Ruby DSL for building simple stream/log analysis
 tools.
 
