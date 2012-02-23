@@ -1,12 +1,7 @@
 module Xail
   class UI
-    def write_line()
-
-    end
-
-    def write_status_line()
-
-    end
+    # TODO
+    # do I really have to use curses?
   end
 end
 

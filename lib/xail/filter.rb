@@ -108,7 +108,7 @@ module Xail
   class AndFilter < AbstractCompoundFilter
     def streamLine(line)
       @filters.each do |filter|
-        if(!filter.streamLine(line))
+        if !filter.streamLine(line)
           return nil
         end
       end
@@ -121,7 +121,7 @@ module Xail
   class OrFilter < AbstractCompoundFilter
     def streamLine(line)
       @filters.each do |filter|
-        if(filter.streamLine(line))
+        if filter.streamLine(line)
           return line
         end
       end
@@ -133,7 +133,7 @@ module Xail
     def streamLine(line)
       result = super.streamLine(line)
 
-      if(result != nil)
+      if result != nil
         nil
       else
         line
@@ -165,7 +165,7 @@ module Xail
     end
 
     def streamLine(line)
-      if(@count % @rate == 0)
+      if @count % @rate == 0
         line
       end
     end
