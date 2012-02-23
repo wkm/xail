@@ -29,4 +29,35 @@ You can then run it directly:
 
 And it will accept input on stdin or a filename on the command line.
 
+You can directly specify:
 
+## Filters
+
+There are filters and compound filters. A filter takes a line from a stream
+and performs some action, potentially altering the stream, or terminating the flow.
+Compound filters take a stream and also a set of subfilters. These generally implement
+flow control.
+
+Stdout is the ultimate consumer of the strings, unless they've been filtered.
+
+### Compound Filters
+* `cascade` -- stream the result of first subfilter that streams
+* `composition` -- streams the applying each subfilter on the stream of the preceeding subfilter
+
+* `and` -- streams the original if all subfilters stream
+* `or` -- streams the original if any subfilter streams
+* `not` -- streams the original if no subfilters stream
+
+### Alerting Filters
+* `execute` executes a command, replacing {} with the line
+* `bell` rings a terminal bell (if possible)
+
+### Styling Filters
+* `black`, `red`, `green`, `yellow`, `blue`, `magenta`, `cyan`, `white` -- adjust foreground color
+* `onblack`, `onred`, `ongreen`, `onyellow`, `onblue`, `onmagenta`, `oncyan`, `onwhite` -- adjust background color
+* `bold`, `blink`, `underscore`, `negative`, `dark` -- apply effects to the text
+
+### Special Filter
+* `sample` -- samples the stream, only printing at the rate requested
+* `stop` -- stops processing of this stream and continues with the next
+* `count` -- [todo] computes the rate of the stream for display (need UI aspect)
