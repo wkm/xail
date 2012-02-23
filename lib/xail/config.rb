@@ -3,35 +3,51 @@ require 'xail/filter'
 
 module Xail
   module DSL
-    @filter_stack = []
-    @filter_stack << FilterCascade.new
+    def get_binding
+      binding
+    end
+
+    def filter_scope(compound)
+      filter_in_scope << compound
+      @filter_stack << compound
+
+      yield
+
+      @filter_stack.pop
+    end
 
     def stream(name, source = null)
       source ||= name
     end
 
     def group(name, &filters)
-
+      # TODO intergrate with UX
+      filter_scope(FilterComposition.new) {
+        filters.yield
+      }
     end
 
     def rest(&filters)
-
+      filter_scope(FilterComposition.new) {
+        filters.yield
+      }
     end
 
     def filter_in_scope
-      @fitler_stack.last
+      @filter_stack ||= [FilterCascade.new]
+      @filter_stack.last
     end
 
-    def send(name, *args)
+    def method_missing(name, *args, &block)
       filterClass = FilterRegistry::get_filter(name)
-      filter = Object::const_get(filterClass).new(*args)
+      filter = filterClass.new(*args)
       filter_in_scope << filter
+
     rescue UnknownFilter => error
-      puts error
-      exit -1
+      abort error.to_s
+
     rescue => error
-      puts "#{filter_in_scope} will not subfilter with #{name}"
-      exit -1
+      abort "#{filter_in_scope} will not accept #{name} as subfilter: #{error}"
     end
   end
 end

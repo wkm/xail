@@ -42,14 +42,18 @@ Stdout is the ultimate consumer of the strings, unless they've been filtered.
 
 ### Compound Filters
 * `cascade` -- stream the result of first subfilter that streams
-* `composition` -- streams the applying each subfilter on the stream of the preceeding subfilter
+* `composition` -- applies each subfilter on the stream of the preceding subfilter, streaming the final result
 
 * `and` -- streams the original if all subfilters stream
 * `or` -- streams the original if any subfilter streams
 * `not` -- streams the original if no subfilters stream
 
+### Matching Filters
+* `contains` -- streams the original if any of the parameters are included
+* `replace` -- mutates the stream
+
 ### Alerting Filters
-* `execute` executes a command, replacing {} with the line
+* `execute` executes a command, replacing `{}` with the line content
 * `bell` rings a terminal bell (if possible)
 
 ### Styling Filters
@@ -57,7 +61,11 @@ Stdout is the ultimate consumer of the strings, unless they've been filtered.
 * `onblack`, `onred`, `ongreen`, `onyellow`, `onblue`, `onmagenta`, `oncyan`, `onwhite` -- adjust background color
 * `bold`, `blink`, `underscore`, `negative`, `dark` -- apply effects to the text
 
-### Special Filter
+### Special Filters
 * `sample` -- samples the stream, only printing at the rate requested
 * `stop` -- stops processing of this stream and continues with the next
 * `count` -- [todo] computes the rate of the stream for display (need UI aspect)
+
+### Custom Filters
+
+You can easily develop your own filters. Either as an anonymous block:

@@ -4,6 +4,7 @@ require 'pp'
 
 require 'xail/version'
 require 'xail/filter'
+require 'xail/config'
 
 module Xail
   @opts = Trollop::options do
@@ -15,16 +16,21 @@ A Ruby utility for performing basic stream processing, directly focused on incre
 
 
   def Xail.run(configuration)
+
+    begin
+      extend Xail::DSL
+
+      filter = eval(configuration)
+    end
+
+    pp filter
+
     stream = $stdin
-
-    chain = FilterComposition.new
-    chain << Blue.new
-    chain << OnRed.new
-
     stream.each() do |line|
-      printf chain.streamLine(line)
+      printf filter.streamLine(line)
     end
   end
 
-  Xail.run("")
+  config = IO.read(ARGV[0])
+  Xail.run(config)
 end
