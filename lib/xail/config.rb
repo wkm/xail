@@ -17,11 +17,7 @@ module Xail
 
     end
 
-    def match(*keys)
-
-    end
-
-    def sample(count)
+    def send(name, *args)
 
     end
   end

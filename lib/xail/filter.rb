@@ -7,17 +7,29 @@ module Xail
     # naively assume all filters are defined in this file, or at least loaded
     # before this executes
     def self.find_filters
-      filters = []
+      filters = {}
 
       ObjectSpace.each_object(Class) do |cls|
         if cls.ancestors.include?(AbstractFilter) and
             not cls.to_s =~ /^.*Abstract.*$/
         then
-          filters << cls
+          filters[cls]
         end
       end
 
       filters
+    end
+
+    def self.get_filter(name)
+      @@filters ||= FilterRegistry.find_filters
+
+      def find_filter(name)
+
+      end
+
+      # if we couldn't find the filter, rebuild the list and try
+      # again
+      @@filters = FilterRegistry.find_filters
     end
   end
 
@@ -63,8 +75,7 @@ module Xail
   end
 
   # a composition streams the next filter on success
-  class FilterComposer < AbstractCompoundFilter
-
+  class FilterComposition < AbstractCompoundFilter
     def streamLine(input)
       @filters.inject(input) do |line,filter|
         if line != nil
@@ -79,14 +90,24 @@ module Xail
   # the And filter streams the original if all component filters stream
   class AndFilter < AbstractCompoundFilter
     def streamLine(line)
+      @filters.each do |filter|
+        if(!filter.streamLine(line))
+          return nil
+        end
+      end
 
+      line
     end
   end
 
   # the Or filter streams the original if any component filter streams
   class OrFilter < AbstractCompoundFilter
     def streamLine(line)
-
+      @filters.each do |filter|
+        if(filter.streamLine(line))
+          return line
+        end
+      end
     end
   end
 
