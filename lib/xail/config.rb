@@ -26,12 +26,12 @@ module Xail
       filterClass = FilterRegistry::get_filter(name)
       filter = Object::const_get(filterClass).new(*args)
       filter_in_scope << filter
+
     rescue UnknownFilter => error
-      puts error
-      exit -1
+      abort error
+
     rescue => error
-      puts "#{filter_in_scope} will not subfilter with #{name}"
-      exit -1
+      abort "#{filter_in_scope} will not subfilter with #{name}"
     end
   end
 end

@@ -91,6 +91,7 @@ module Xail
     end
   end
 
+
   # a composition streams the next filter on success
   class FilterComposition < AbstractCompoundFilter
     def streamLine(input)
@@ -103,6 +104,7 @@ module Xail
       end
     end
   end
+
 
   # the And filter streams the original if all component filters stream
   class AndFilter < AbstractCompoundFilter
@@ -117,6 +119,7 @@ module Xail
     end
   end
 
+
   # the Or filter streams the original if any component filter streams
   class OrFilter < AbstractCompoundFilter
     def streamLine(line)
@@ -127,6 +130,7 @@ module Xail
       end
     end
   end
+
 
   # the Not filter streams the original if none of the component filters stream
   class NotFilter < AndFilter
