@@ -41,7 +41,7 @@ flow control.
 Stdout is the ultimate consumer of the strings, unless they've been redirected using `rest`.
 
 ### Compound Filters
-* `cascade` -- stream the result of first subfilter that streams
+* `cascade` -- stream the result of first subfilter that streams, a cascade filter is the container for your xail script
 * `composition` -- applies each subfilter on the stream of the preceding subfilter, streaming the final result
 
 * `and` -- streams the original if all subfilters stream
@@ -109,15 +109,8 @@ exceptions:
       red
     }
 
-    rest {
-      stop
-    }
+    stop
 
 ### Fine-grained stream control
 You can preform finer grained stream control using the `OR`, `AND`, and `NOT`
-combinators:
-
-
-    OR {
-      contains '
-    }
+combinators.

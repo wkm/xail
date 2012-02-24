@@ -33,11 +33,14 @@ A Ruby utility for performing basic stream processing, directly focused on incre
     stream.each() do |line|
       streamed = filter.streamLine(line)
       if streamed and streamed.size > 0
-        printf streamed
+        print streamed
       end
-    end
+    end rescue StreamLineStop
   end
 
   config = IO.read(ARGV[0])
   Xail.run(config)
+
+rescue SignalException
+  exit
 end

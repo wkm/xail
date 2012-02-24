@@ -16,9 +16,18 @@ module Xail
       @filter_stack.pop
     end
 
-    def stream(name, source = null)
-      source ||= name
+    def filter(&block)
+      filter_in_scope << Class.new(AbstractFilter) do
+        def streamLine(line)
+          block(line)
+        end
+      end
     end
+
+    # TODO add support for explicitly listing sources
+    #def stream(name, source = null)
+    #  source ||= name
+    #end
 
     def group(name, &filters)
       # TODO intergrate with UX
@@ -27,10 +36,7 @@ module Xail
       }
     end
 
-    def has_final
-      @has_final
-    end
-
+    attr :has_final
     def rest(&filters)
       if @has_final
         raise "rest may only be specified once"
@@ -48,9 +54,15 @@ module Xail
     end
 
     def method_missing(name, *args, &block)
+      abort "internal error #{name} #{args} #{block}" unless name
       filterClass = FilterRegistry::get_filter(name.downcase)
-      filter = filterClass.new(*args)
+      filter = filterClass.new(*args, &block)
       filter_in_scope << filter
+
+    # short circuit the stream line stop exception so we can catch it
+    # in xail main
+    rescue StreamLineStop => stop
+      raise stop
 
     rescue UnknownFilter => error
       abort error.to_s

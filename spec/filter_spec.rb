@@ -24,10 +24,17 @@ describe PassThroughFilter do
   end
 end
 
-describe StopFilter do
-  it "should stop all streams" do
-    f = StopFilter.new
+describe SinkFilter do
+  it "should sink all streams" do
+    f = SinkFilter.new
     f.streamLine("hi").should eq(nil)
+  end
+end
+
+describe StopFilter do
+  it "should stop all processing of this stream-line" do
+    f = StopFilter.new
+    lambda { f.streamLine("hi") }.should raise_error(StreamLineStop)
   end
 end
 
@@ -61,10 +68,10 @@ end
 describe FilterCascade do
   it "should cascade through" do
     f = FilterCascade.new
-    f << StopFilter.new
-    f << StopFilter.new
+    f << SinkFilter.new
+    f << SinkFilter.new
     f << ContainsFilter.new("hi")
-    f << StopFilter.new
+    f << SinkFilter.new
 
     f.streamLine("bye").should eq(nil)
     f.streamLine("hi").should eq("hi")
@@ -79,5 +86,49 @@ describe FilterComposition do
 
     f.streamLine('bye').should eq(nil)
     f.streamLine('hi there alice').should eq('hi there blice')
+  end
+end
+
+describe OrFilter do
+  it "should act like logical or" do
+    f = OrFilter.new
+    f << ContainsFilter.new('a')
+    f << ContainsFilter.new('b')
+
+    f.streamLine('a').should eq('a')
+    f.streamLine('b').should eq('b')
+    f.streamLine('c').should eq(nil)
+  end
+end
+
+describe AndFilter do
+  it "should act like logical and" do
+    f = AndFilter.new
+    f << ContainsFilter.new('a')
+    f << ContainsFilter.new('b')
+
+    f.streamLine('a').should eq(nil)
+    f.streamLine('b').should eq(nil)
+    f.streamLine('ab').should eq('ab')
+  end
+end
+
+describe NotFilter do
+  it "should act like logical not" do
+    f = NotFilter.new
+    f << ContainsFilter.new('a')
+
+    f.streamLine('a').should eq(nil)
+    f.streamLine('b').should eq('b')
+  end
+
+  it "should take multiple subfilters" do
+    f = NotFilter.new
+    f << ContainsFilter.new('a')
+    f << ContainsFilter.new('b')
+
+    f.streamLine('a').should eq(nil)
+    f.streamLine('b').should eq(nil)
+    f.streamLine('c').should eq('c')
   end
 end

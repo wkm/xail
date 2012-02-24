@@ -127,7 +127,7 @@ module Xail
   class OrFilter < AbstractCompoundFilter
     def streamLine(line)
       @filters.each do |filter|
-        if filter.streamLine line
+        if filter.streamLine(line)
           return line
         end
       end
@@ -138,15 +138,15 @@ module Xail
 
 
   # the not filter streams the original if none of the component filters stream
-  class NotFilter < AndFilter
+  class NotFilter < OrFilter
     def streamLine(line)
-      result = super.streamLine(line)
-
-      if result != nil
-        nil
-      else
-        line
+      @filters.each do |filter|
+        if filter.streamLine(line)
+          return
+        end
       end
+
+      return line
     end
   end
 
@@ -157,7 +157,9 @@ module Xail
 
     def streamLine(line)
       @keys.each do |key|
-        if line.include?(key)
+        if key.instance_of? Regexp and line[key]
+          return line
+        elsif key.instance_of? String and line.downcase.include? key.downcase
           return line
         end
       end
@@ -182,10 +184,18 @@ module Xail
   end
 
 
-  # the stop filter never streams
-  class StopFilter < AbstractFilter
+  # the sink filter never streams
+  class SinkFilter < AbstractFilter
     def streamLine(line)
       nil
+    end
+  end
+
+  # the stop filter stops all processing of this stream-line
+  class StreamLineStop < Exception; end
+  class StopFilter < AbstractFilter
+    def streamLine(line)
+      raise StreamLineStop
     end
   end
 
