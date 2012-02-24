@@ -9,26 +9,18 @@ class ExecuteFilter < AbstractFilter
   end
 
   def streamLine(line)
-    puts "EXECUTING #{@command} #{line}"
+    @count ||= 0
+    @count +=1
+    puts "EXECUTING #{@count}: #{@command} #{line}"
     return line
   end
 end
 
 
-group('fatal') {
-  contains 'fatal'
-  red
-  onblue
-  bell
+group("") {
+  sample 500
 }
 
-group('error') {
-  contains 'error', 'exception'
-  red
-  bold
-}
-
-group('warning') {
-  contains 'warn'
-  yellow
+rest {
+  stop
 }

@@ -38,7 +38,7 @@ and performs some action, potentially altering the stream, or terminating the fl
 Compound filters take a stream and also a set of subfilters. These generally implement
 flow control.
 
-Stdout is the ultimate consumer of the strings, unless they've been filtered.
+Stdout is the ultimate consumer of the strings, unless they've been redirected using `rest`.
 
 ### Compound Filters
 * `cascade` -- stream the result of first subfilter that streams
@@ -65,7 +65,59 @@ Stdout is the ultimate consumer of the strings, unless they've been filtered.
 * `sample` -- samples the stream, only printing at the rate requested
 * `stop` -- stops processing of this stream and continues with the next
 * `count` -- [todo] computes the rate of the stream for display (need UI aspect)
+* `rest` -- a special compound filter that is applied to any unmatched streams
 
 ### Custom Filters
 
 You can easily develop your own filters. Either as an anonymous block:
+
+    filter do |stream|
+      if stream.includes? 'awesome'
+        nil # stop the stream
+      else
+        stream # keep it going
+      end
+    end
+
+Or, if you need to preserve state, as a filter within the xail file:
+
+    class LineNumbersFilter < AbstractFilter
+        def initialize
+          @lineno = 0
+        end
+
+        def streamLine(line)
+          @lineno += 1
+          return "%5d %s" % [@lineno, line]
+        end
+    end
+
+    linenumbers
+    group('fatal') {
+        contains 'fatal'
+        red
+    }
+
+
+### Hide unfiltered lines
+By default xail will print any unfiltered lines as this is a more typical case.
+You can hide unfiltered lines using a rest block. For example, to only show
+exceptions:
+
+    group('error') {
+      contains 'exception'
+      red
+    }
+
+    rest {
+      stop
+    }
+
+### Fine-grained stream control
+You can preform finer grained stream control using the `OR`, `AND`, and `NOT`
+combinators:
+
+
+    OR {
+      contains '
+    }
