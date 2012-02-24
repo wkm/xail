@@ -1,16 +1,22 @@
-#!/bin/env xail
+#!/usr/bin/env xail
+#
+# a simple log error and warning highlighter
+#
+
+#!/usr/bin/env xail
 group('fatal') {
-  match 'fatal'
+  contains 'fatal'
+  red
+  underscore
   bell
 }
 
 group('error') {
-  match 'error', 'exception'
-  red
+  contains 'error', 'exception'
   bold
 }
 
 group('warning') {
-  match 'warn'
-  yello
+  contains 'warn'
+  yellow
 }

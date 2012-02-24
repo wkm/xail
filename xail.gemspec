@@ -9,12 +9,12 @@ Gem::Specification.new do |s|
   s.email       = ["wiktor@tumblr.com"]
   s.homepage    = ""
   s.summary     = %q{tail for winners}
-  s.description = %q{TODO write this}
+  s.description = %q{A lightweight Ruby DSL for building text-stream filters}
 
   s.rubyforge_project = "xail"
 
   s.files         = `git ls-files`.split("\n")
-  s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
+  s.test_files    = `git ls-files -- spec/*`.split("\n")
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 

@@ -5,7 +5,7 @@ module Xail
 
   class UnknownFilter < Exception
     def initialize(filter)
-      super("Unknown filter #{filter}. Known: #{FilterRegistry.filters.sort}")
+      super("Unknown filter ``#{filter}''. Known: #{FilterRegistry.filters.keys.sort}")
     end
   end
 
@@ -18,20 +18,21 @@ module Xail
     # naively assume all filters are defined in this file, or at least loaded
     # before this executes
     def self.find_filters
-      filters = {}
-
-      ObjectSpace.each_object(Class) do |cls|
-        if cls.ancestors.include?(AbstractFilter) and
-            not cls.to_s =~ /^.*Abstract.*$/
-        then
-          filters[cls]
-        end
-      end
+      filters = Hash.new
+      ObjectSpace.each_object(Class).select { |classObject|
+        classObject < AbstractFilter and
+        not classObject.name.downcase.include? "abstract"
+      }.map { |filterclass|
+        filtername = filterclass.name.split('::').last.gsub(/filter/i, '')
+        filters[filtername.downcase] = filterclass
+      }
 
       filters
     end
 
-    def self.get_filter(name)
+    def self.get_filter(key)
+      name = key.to_s
+
       @@filters ||= FilterRegistry.filters
 
       if @@filters.has_key? name
@@ -88,6 +89,8 @@ module Xail
           return line
         end
       end
+
+      nil
     end
   end
 
@@ -99,14 +102,14 @@ module Xail
         if line != nil
           filter.streamLine(line)
         else
-          nil
+          return nil
         end
       end
     end
   end
 
 
-  # the And filter streams the original if all component filters stream
+  # the and filter streams the original if all component filters stream
   class AndFilter < AbstractCompoundFilter
     def streamLine(line)
       @filters.each do |filter|
@@ -120,36 +123,86 @@ module Xail
   end
 
 
-  # the Or filter streams the original if any component filter streams
+  # the or filter streams the original if any component filter streams
   class OrFilter < AbstractCompoundFilter
     def streamLine(line)
       @filters.each do |filter|
-        if filter.streamLine(line)
+        if filter and filter.streamLine(line)
           return line
         end
       end
+
+      return nil
     end
   end
 
 
-  # the Not filter streams the original if none of the component filters stream
-  class NotFilter < AndFilter
+  # the not filter streams the original if none of the component filters stream
+  class NotFilter < AbstractCompoundFilter
     def streamLine(line)
-      result = super.streamLine(line)
-
-      if result != nil
-        nil
-      else
-        line
+      @filters.each do |filter|
+        if filter.streamLine(line)
+          return
+        end
       end
+
+      return line
+    end
+  end
+
+  class ContainsFilter < AbstractFilter
+    def initialize(*keys)
+      @keys = keys
+    end
+
+    def streamLine(line)
+      @keys.each do |key|
+        if key.instance_of? Regexp and line[key]
+          return line
+        elsif key.instance_of? String and line.downcase.include? key.downcase
+          return line
+        end
+      end
+
+      nil
+    end
+  end
+
+  class ReplaceFilter < AbstractFilter
+    def initialize(regexp)
+      @regexp = regexp
+    end
+
+    def streamLine(line)
+      # why fold when you can iterate
+      final = line
+      @regexp.each_pair do |patt,val|
+        final.gsub!(patt,val)
+      end
+      final
     end
   end
 
 
-  # the Stop filter never succeeds
-  class StopFilter < AbstractFilter
+  # the sink filter never streams
+  class SinkFilter < AbstractFilter
     def streamLine(line)
       nil
+    end
+  end
+
+  # the stop filter stops all processing of this stream-line
+  class StreamLineStop < Exception; end
+  class StopFilter < AbstractFilter
+    def streamLine(line)
+      raise StreamLineStop
+    end
+  end
+
+  # the pass through filter always streams
+  class PassThroughFilter < AbstractFilter
+    def streamLine(line)
+      line
     end
   end
 
@@ -161,20 +214,22 @@ module Xail
   #
 
   class SampleFilter < AbstractFilter
-    @count = 0
-    @rate
-
     def initialize(params)
       @rate = params.to_i
+      @count = 0
     end
 
     def streamLine(line)
-      if @count % @rate == 0
+      res = if @count % @rate == 0
         line
+      else
+        ""
       end
+
+      @count += 1
+      res
     end
   end
-
 
 
 
