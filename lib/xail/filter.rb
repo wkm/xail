@@ -102,7 +102,7 @@ module Xail
         if line != nil
           filter.streamLine(line)
         else
-          nil
+          return nil
         end
       end
     end
@@ -127,18 +127,18 @@ module Xail
   class OrFilter < AbstractCompoundFilter
     def streamLine(line)
       @filters.each do |filter|
-        if filter.streamLine(line)
+        if filter and filter.streamLine(line)
           return line
         end
       end
 
-      nil
+      return nil
     end
   end
 
 
   # the not filter streams the original if none of the component filters stream
-  class NotFilter < OrFilter
+  class NotFilter < AbstractCompoundFilter
     def streamLine(line)
       @filters.each do |filter|
         if filter.streamLine(line)

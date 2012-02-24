@@ -56,7 +56,9 @@ module Xail
     def method_missing(name, *args, &block)
       abort "internal error #{name} #{args} #{block}" unless name
       filterClass = FilterRegistry::get_filter(name.downcase)
-      filter = filterClass.new(*args, &block)
+      filter_scope(filterClass.new(*args)) do
+        block.yield if block
+      end
       filter_in_scope << filter
 
     # short circuit the stream line stop exception so we can catch it

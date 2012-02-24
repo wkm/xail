@@ -28,14 +28,17 @@ A Ruby utility for performing basic stream processing, directly focused on incre
       end
     end
 
-
     stream = $stdin
     stream.each() do |line|
-      streamed = filter.streamLine(line)
-      if streamed and streamed.size > 0
-        print streamed
+      begin
+        streamed = filter.streamLine(line)
+        if streamed and streamed.size > 0
+          print streamed
+        end
+
+      rescue StreamLineStop
       end
-    end rescue StreamLineStop
+    end
   end
 
   config = IO.read(ARGV[0])
