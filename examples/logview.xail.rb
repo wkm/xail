@@ -32,7 +32,3 @@ group('warning') {
   contains 'warn'
   yellow
 }
-
-rest {
-  stop
-}
