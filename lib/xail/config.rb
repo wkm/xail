@@ -2,7 +2,7 @@
 require 'xail/filter'
 
 module Xail
-  def build_from_config(configuration)
+  def self.build_from_config(configuration)
     begin
       extend Xail::DSL
       eval(configuration)
