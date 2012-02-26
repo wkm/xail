@@ -70,6 +70,8 @@ module Xail
   #
 
   class AbstractCompoundFilter < AbstractFilter
+    attr_reader :filters
+
     def initialize
       @filters = []
     end

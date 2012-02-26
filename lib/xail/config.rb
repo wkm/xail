@@ -2,18 +2,35 @@
 require 'xail/filter'
 
 module Xail
+  def build_from_config(configuration)
+    begin
+      extend Xail::DSL
+      eval(configuration)
+
+      filter = filter_in_scope
+
+      if !has_final
+        filter << PassThroughFilter.new
+      end
+    end
+
+    return filter
+  end
+
   module DSL
     def get_binding
       binding
     end
 
     def filter_scope(compound)
+      # add this compound filter to the filter currently in scope
       filter_in_scope << compound
-      @filter_stack << compound
 
-      yield
-
-      @filter_stack.pop
+      if block_given?
+        @filter_stack << compound
+        yield
+        @filter_stack.pop
+      end
     end
 
     def filter(&block)
@@ -24,16 +41,9 @@ module Xail
       end
     end
 
-    # TODO add support for explicitly listing sources
-    #def stream(name, source = null)
-    #  source ||= name
-    #end
-
     def group(name, &filters)
       # TODO intergrate with UX
-      filter_scope(FilterComposition.new) {
-        filters.yield
-      }
+      filter_scope(FilterComposition.new, &filters)
     end
 
     attr :has_final
@@ -55,15 +65,13 @@ module Xail
 
     def method_missing(name, *args, &block)
       abort "internal error #{name} #{args} #{block}" unless name
-      filterClass = FilterRegistry::get_filter(name.downcase)
-      filter_scope(filterClass.new(*args)) do
-        block.yield if block
-      end
-      filter_in_scope << filter
 
-    # short circuit the stream line stop exception so we can catch it
-    # in xail main
+      filterClass = FilterRegistry::get_filter(name.downcase)
+      filter_scope(filterClass.new(*args), &block)
+
     rescue StreamLineStop => stop
+      # short circuit the stream line stop exception so we can catch it
+      # in xail main
       raise stop
 
     rescue UnknownFilter => error

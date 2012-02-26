@@ -16,17 +16,7 @@ A Ruby utility for performing basic stream processing, directly focused on incre
 
 
   def Xail.run(configuration)
-
-    begin
-      extend Xail::DSL
-
-      eval(configuration)
-      filter = filter_in_scope
-
-      if !has_final
-        filter << PassThroughFilter.new
-      end
-    end
+    filter = build_from_config(configuration)
 
     stream = $stdin
     stream.each() do |line|
