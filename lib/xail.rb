@@ -10,7 +10,8 @@ module Xail
   @opts = Trollop::options do
     version "xail - #{VERSION} (c) 2012 w.k.macura - Released under BSD license"
     banner <<-EOS
-A Ruby utility for performing basic stream processing, directly focused on increasing error visibility in logs
+A Ruby utility for performing basic stream processing, directly focused on
+increasing error visibility in logs
     EOS
   end
 
